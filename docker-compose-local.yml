@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+
+  keycloak:
+    container_name: keycloak-courier
+    image: quay.io/keycloak/keycloak:21.0.2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./keycloak/keycloak.conf:/opt/keycloak/conf/keycloak.conf
+    command:
+      - start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - 8090:8080
+    depends_on:
+      - keycloak-courier-database
+
+  keycloak-courier-database:
+    container_name: keycloak-courier-database
+    image: mysql:8.0.32
+    volumes:
+      - ./keycloak/dumps:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: keycloak123
+    ports:
+      - 3308:3306
+  
+  courier-service-database:
+    container_name: courier-service-database
+    image: mysql:8.0.32
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: courier-service
+      MYSQL_USER: courier-service
+      MYSQL_PASSWORD: courier123
+    ports:
+      - 3309:3306
