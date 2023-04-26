@@ -14,7 +14,7 @@
 - You have to be in same path with docker-compose-local.yml file
 - Run docker-compose -p "courier-docker-compose" --file ./docker-compose-local.yml up -d
 
-### Notice this
+### Notice these
  - First run will take long time because of dependencies
  - If you wish run the project in a tool such as STS, you can add comment to courier-service container in docker-compose file. Yet it is necessary to run all other containers.
 
