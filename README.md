@@ -20,7 +20,9 @@
 
  ### How to Test:
  - Go http://localhost:8080/swagger-ui/index.html
+ - Authorize and select email scope
+ - Authenticate username: test-user@gmail.com and pass: test1234
  - Thanks to dump files stores already exists in db so you can call api to see them
- - /courier-location end point help you to start or change your courier location
+ - /courier-location end point helps you to start or change your courier location
  - you can track informations about relations of courier and store in logs
- - /courier-travel-detail At end of the day you can see how distance your courier take
+ - /courier-travel-detail At the end of the day you can see how distance your courier take
