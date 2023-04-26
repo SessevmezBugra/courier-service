@@ -1,0 +1,67 @@
+#logging:
+#  level:
+#    root: DEBUG
+
+spring:
+  application:
+    name: courier-service
+  datasource:
+    hikari:
+      minimumIdle: 2
+      maximumPoolSize: 10
+      idleTimeout: 120000
+      connectionTimeout: 300000
+      leakDetectionThreshold: 300000
+    url: jdbc:mysql://${RDS_HOSTNAME:localhost}:${RDS_PORT:3309}/${RDS_DB_NAME:courier-service}?serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: ${RDS_USERNAME:courier-service}
+    password: ${RDS_PASSWORD:courier123}
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  redis:
+    database: 0
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:16379}
+    password: ${REDIS_PASS:mypass}
+    timeout: 60000
+
+
+server:
+  port: 8080
+    
+keycloak-admin-user: admin
+keycloak-admin-password: admin
+
+keycloak:
+  resource: courier-service
+  credentials: 
+    secret: ${CLIENT_SECRET:EibaodHOIeQt7HjYlptxMW9rEWEdIAsp}
+  auth-server-url: ${KEYCLOAK_URI:http://localhost:8090}
+  realm: migros
+  bearer-only: true
+  public-client: true
+  principal-attribute: preferred_username
+  ssl-required: none
+  
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: "*"
+    restart:
+      enabled: true
+  
+springdoc:
+  swagger-ui:
+    oauth:
+      clientId: courier-service
+      clientSecret: ${CLIENT_SECRET:EibaodHOIeQt7HjYlptxMW9rEWEdIAsp}
+      usePkceWithAuthorizationCodeGrant: true
+  oAuthFlow:
+    authorizationUrl: ${KEYCLOAK_SWAGGER_URI:http://localhost:8090}/realms/migros/protocol/openid-connect/auth
+    tokenUrl: ${KEYCLOAK_SWAGGER_URI:http://localhost:8090}/realms/migros/protocol/openid-connect/token

@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
 
-  keycloak:
+  keycloak-courier:
     container_name: keycloak-courier
     image: quay.io/keycloak/keycloak:21.0.2
     volumes:
@@ -13,8 +13,10 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_URL: http://localhost:8090
     ports:
       - 8090:8080
+    restart: always
     depends_on:
       - keycloak-courier-database
 
@@ -31,9 +33,35 @@ services:
     ports:
       - 3308:3306
   
+  courier-service:
+    container_name: courier-service
+    image: courier-service:latest
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      RDS_HOSTNAME: $COURIER_DB_HOSTNAME
+      RDS_PORT: $COURIER_DB_PORT
+      RDS_DB_NAME: $COURIER_DB_NAME
+      RDS_USERNAME: $COURIER_DB_USERNAME
+      RDS_PASSWORD: $COURIER_DB_PASSWORD
+      KEYCLOAK_URI: $KEYCLOAK_URI
+      CLIENT_SECRET: $COURIER_CLIENT_SECRET
+      REDIS_HOST: $REDIS_HOST
+      REDIS_PORT: $REDIS_PORT
+      REDIS_PASS: $REDIS_PASS
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - courier-service-database
+      - courier-redis
+  
   courier-service-database:
     container_name: courier-service-database
     image: mysql:8.0.32
+    volumes:
+      - ./dumps:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: courier-service
@@ -41,3 +69,11 @@ services:
       MYSQL_PASSWORD: courier123
     ports:
       - 3309:3306
+  
+  courier-redis:
+    container_name: courier-redis
+    image: redis:latest
+    restart: always
+    ports:
+      - '16379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass mypass
